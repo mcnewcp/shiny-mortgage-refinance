@@ -193,8 +193,15 @@ server <- function(input, output) {
             layout(
                 hovermode = "x unified", showlegend = FALSE,
                 xaxis = list(title = "Date"), yaxis = list(title = "Running Total ($)")
+            ) %>%
+            add_annotations(
+                x= 0.5, y= 1,
+                xref = "paper", yref = "paper",
+                text = "Solid lines = original mortgage, dotted lines = refinanced",
+                showarrow = F
             )
     )
+        
     
     #monthly payment plot
     output$monthly_plot <- renderPlotly(
@@ -212,6 +219,13 @@ server <- function(input, output) {
                           fillcolor = cols[4],
                           type = "scatter", mode = "none", stackgroup = "one"
                 ) %>%
+                add_annotations(
+                    x= 0.5, y= 0.2,
+                    xref = "paper", yref = "paper",
+                    text = "Original Monthly Payment",
+                    showarrow = F,
+                    font = list(color = 'white', size = 14)
+                ) %>%
                 layout(hovermode = "x unified"),
             plot_ly() %>%
                 add_trace(data = dataDF2(),
@@ -225,6 +239,13 @@ server <- function(input, output) {
                           name = "Interest", 
                           fillcolor = cols[4],
                           type = "scatter", mode = "none", stackgroup = "one"
+                ) %>%
+                add_annotations(
+                    x= 0.5, y= 0.2,
+                    xref = "paper", yref = "paper",
+                    text = "Refinanced Monthly Payment",
+                    showarrow = F,
+                    font = list(color = 'white', size = 14)
                 ) %>%
                 layout(hovermode = "x unified"),
             shareX = TRUE, nrows = 2
