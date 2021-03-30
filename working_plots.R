@@ -29,6 +29,10 @@ I0 <- dataDF1 %>%
 
 dataDF2 <- my_amort(P, r_a, n, t0, P0, I0)
 
+#totals
+original_total <- sum(dataDF1$payment) %>% dollar_format()(.)
+refi_total <- (P0 + sum(dataDF2$payment)) %>% dollar_format()(.)
+
 cols <- pal_jco()(5)
 
 #running totals plot
