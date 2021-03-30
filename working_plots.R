@@ -79,40 +79,41 @@ plot_ly() %>%
   )
 
 #monthly payment plot
-p1 <- plot_ly() %>%
-  add_trace(data = dataDF1,
-            x = ~date, y = ~principal_payment,
-            name = "Principal",
-            marker = list(color = cols[5]),
-            type = "bar"
-  ) %>%
-  add_trace(data = dataDF1,
-            x = ~date, y = ~interest_payment,
-            name = "Interest", 
-            marker = list(color = cols[4]),
-            type = "bar"
-  ) %>%
-  layout(barmode = "stack", hovermode = "x unified")
-
-p2 <- plot_ly() %>%
-  add_trace(data = dataDF2,
-            x = ~date, y = ~principal_payment,
-            name = "Principal", 
-            marker = list(color = cols[5]),
-            type = "bar"
-  ) %>%
-  add_trace(data = dataDF2,
-            x = ~date, y = ~interest_payment,
-            name = "Interest", 
-            marker = list(color = cols[4]),
-            type = "bar"
-  ) %>%
-  layout(barmode = "stack", hovermode = "x unified")
-
-subplot(p1, p2, shareX = TRUE, nrows = 2) %>%
+subplot(
+  plot_ly() %>%
+    add_trace(data = dataDF1,
+              x = ~date, y = ~principal_payment,
+              name = "Principal",
+              fillcolor = cols[5],
+              type = "scatter", mode = "none", stackgroup = "one"
+    ) %>%
+    add_trace(data = dataDF1,
+              x = ~date, y = ~interest_payment,
+              name = "Interest", 
+              fillcolor = cols[4],
+              type = "scatter", mode = "none", stackgroup = "one"
+    ) %>%
+    layout(hovermode = "x unified"),
+  plot_ly() %>%
+    add_trace(data = dataDF2,
+              x = ~date, y = ~principal_payment,
+              name = "Principal",
+              fillcolor = cols[5],
+              type = "scatter", mode = "none", stackgroup = "one"
+    ) %>%
+    add_trace(data = dataDF2,
+              x = ~date, y = ~interest_payment,
+              name = "Interest", 
+              fillcolor = cols[4],
+              type = "scatter", mode = "none", stackgroup = "one"
+    ) %>%
+    layout(hovermode = "x unified"),
+  shareX = TRUE, nrows = 2
+) %>%
   layout(
     xaxis = list(title = "Date"),
-    yaxis = list(title = "Original Mortgage Payment ($)"),
-    yaxis2 = list(title = "Refinanced Mortgage Payment ($)"),
+    yaxis = list(title = "Original Mortgage<br>Payment ($)"),
+    yaxis2 = list(title = "Refinanced Mortgage<br>Payment ($)"),
     showlegend = FALSE
   )
+
