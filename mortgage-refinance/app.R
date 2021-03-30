@@ -124,6 +124,18 @@ server <- function(input, output) {
     
     #debug print
     output$debug <- renderPrint(head(dataDF2()))
+    
+    #totals
+    original_total <- reactive({
+        input$calc
+        isolate(
+            sum(dataDF1()$payment) %>% dollar_format()(.)
+        )
+    })
+    refi_total <- reactive({
+        input$calc
+        isolate((P0_refi() + sum(dataDF2()$payment)) %>% dollar_format()(.))
+    })
 }
 
 # Run the application 
