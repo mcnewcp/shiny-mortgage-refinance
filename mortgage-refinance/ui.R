@@ -1,4 +1,5 @@
 fluidPage(
+  theme = shinytheme("flatly"), title = "Simple Mortgage Refinance Dashboard",
   titlePanel("Simple Mortgage Refinance Dashboard"),
   sidebarLayout(
     sidebarPanel(

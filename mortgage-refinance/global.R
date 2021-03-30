@@ -3,6 +3,8 @@ library(lubridate)
 library(plotly)
 library(scales)
 library(ggsci)
+library(shiny)
+library(shinythemes)
 
 #function for calculating amortization
 my_amort <- function(
