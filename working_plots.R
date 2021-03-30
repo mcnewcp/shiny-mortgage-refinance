@@ -1,9 +1,8 @@
-if(!require(pacman)) install.packages('pacman')
-p_load(tidyverse, lubridate, ggplot2)
 library(tidyverse)
 library(lubridate)
 library(plotly)
 library(scales)
+library(ggsci)
 
 #initial mortgage amortization
 dataDF1 <- my_amort(625000, 3.990, 30*12, ymd("2019-08-01")) 
@@ -30,25 +29,46 @@ I0 <- dataDF1 %>%
 
 dataDF2 <- my_amort(P, r_a, n, t0, P0, I0)
 
+cols <- pal_npg()(3)
+
 #running totals plot
 plot_ly() %>%
-  add_trace(
-    data = dataDF1 %>%
-      pivot_longer(c("ending_balance", "principal_paid", "interest_paid")) %>%
-      mutate(dollars = dollar_format()(value)),
-    x = ~date, y = ~value, color = ~name, name = "Original Mortgage",
-    text = ~paste0(
-      "Date: ", date,
-      "<br>orig. ", name, ":", dollars
-    ),
-    hoverinfo = 'text',
-    type = 'scatter', mode = 'lines'
+  add_trace(data = dataDF1,
+            x = ~date, y = ~ending_balance,
+            name = "Balance", color = cols[1],
+            type = 'scatter', mode = 'lines'
   ) %>%
-  add_trace(
-    data = dataDF2 %>%
-      pivot_longer(c("ending_balance", "principal_paid", "interest_paid")) %>%
-      mutate(dollars = dollar_format()(value)),
-    x = ~date, y = ~value, color = ~name, name = "Refinance",
-    type = 'scatter', mode = 'lines', line = list(dash = "dot")
+  add_trace(data = dataDF1,
+            x = ~date, y = ~principal_paid,
+            name = "Principal Paid", color = cols[2],
+            type = 'scatter', mode = 'lines'
   ) %>%
-  layout(hovermode = "x unified")
+  add_trace(data = dataDF1,
+            x = ~date, y = ~interest_paid,
+            name = "Interest Paid", color = cols[3],
+            type = 'scatter', mode = 'lines'
+  ) %>%
+  add_trace(data = dataDF2,
+            x = ~date, y = ~ending_balance,
+            name = "Balance", color = cols[1],
+            line = list(dash = "dot"),
+            type = 'scatter', mode = 'lines'
+  ) %>%
+  add_trace(data = dataDF2,
+            x = ~date, y = ~principal_paid,
+            name = "Principal Paid", color = cols[2],
+            line = list(dash = "dot"),
+            type = 'scatter', mode = 'lines'
+  ) %>%
+  add_trace(data = dataDF2,
+            x = ~date, y = ~interest_paid,
+            name = "Interest Paid", color = cols[3],
+            line = list(dash = "dot"),
+            type = 'scatter', mode = 'lines'
+  ) %>%
+  layout(
+    hovermode = "x unified", showlegend = FALSE,
+    xaxis = list(title = "Date"), yaxis = list(title = "Running Total ($)")
+  )
+
+
