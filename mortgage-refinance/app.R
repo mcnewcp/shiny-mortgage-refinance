@@ -48,7 +48,7 @@ ui <- fluidPage(
 
         # Show a plot of the generated distribution
         mainPanel(
-            fluidRow(),
+            fluidRow(plotlyOutput("total_plot")),
             fluidRow(),
             fluidRow(verbatimTextOutput("debug"))
         )
@@ -136,6 +136,52 @@ server <- function(input, output) {
         input$calc
         isolate((P0_refi() + sum(dataDF2()$payment)) %>% dollar_format()(.))
     })
+    
+    #running total plot
+    cols <- pal_jco()(5)
+    output$total_plot <- renderPlotly(
+        plot_ly() %>%
+            add_trace(data = dataDF1(),
+                      x = ~date, y = ~ending_balance,
+                      name = "Balance",
+                      line = list(color = cols[1]),
+                      type = 'scatter', mode = 'lines'
+            ) %>%
+            add_trace(data = dataDF1(),
+                      x = ~date, y = ~principal_paid,
+                      name = "Principal Paid",
+                      line = list(color = cols[2]),
+                      type = 'scatter', mode = 'lines'
+            ) %>%
+            add_trace(data = dataDF1(),
+                      x = ~date, y = ~interest_paid,
+                      name = "Interest Paid",
+                      line = list(color = cols[3]),
+                      type = 'scatter', mode = 'lines'
+            ) %>%
+            add_trace(data = dataDF2(),
+                      x = ~date, y = ~ending_balance,
+                      name = "Balance",
+                      line = list(color = cols[1], dash = "dot"),
+                      type = 'scatter', mode = 'lines'
+            ) %>%
+            add_trace(data = dataDF2(),
+                      x = ~date, y = ~principal_paid,
+                      name = "Principal Paid", 
+                      line = list(color = cols[2], dash = "dot"),
+                      type = 'scatter', mode = 'lines'
+            ) %>%
+            add_trace(data = dataDF2(),
+                      x = ~date, y = ~interest_paid,
+                      name = "Interest Paid", 
+                      line = list(color = cols[3], dash = "dot"),
+                      type = 'scatter', mode = 'lines'
+            ) %>%
+            layout(
+                hovermode = "x unified", showlegend = FALSE,
+                xaxis = list(title = "Date"), yaxis = list(title = "Running Total ($)")
+            )
+    )
 }
 
 # Run the application 
