@@ -29,41 +29,44 @@ I0 <- dataDF1 %>%
 
 dataDF2 <- my_amort(P, r_a, n, t0, P0, I0)
 
-cols <- pal_npg()(3)
+cols <- pal_jco()(3)
 
 #running totals plot
 plot_ly() %>%
   add_trace(data = dataDF1,
             x = ~date, y = ~ending_balance,
-            name = "Balance", color = cols[1],
+            name = "Balance",
+            line = list(color = cols[1]),
             type = 'scatter', mode = 'lines'
   ) %>%
   add_trace(data = dataDF1,
             x = ~date, y = ~principal_paid,
-            name = "Principal Paid", color = cols[2],
+            name = "Principal Paid",
+            line = list(color = cols[2]),
             type = 'scatter', mode = 'lines'
   ) %>%
   add_trace(data = dataDF1,
             x = ~date, y = ~interest_paid,
-            name = "Interest Paid", color = cols[3],
+            name = "Interest Paid",
+            line = list(color = cols[3]),
             type = 'scatter', mode = 'lines'
   ) %>%
   add_trace(data = dataDF2,
             x = ~date, y = ~ending_balance,
-            name = "Balance", color = cols[1],
-            line = list(dash = "dot"),
+            name = "Balance",
+            line = list(color = cols[1], dash = "dot"),
             type = 'scatter', mode = 'lines'
   ) %>%
   add_trace(data = dataDF2,
             x = ~date, y = ~principal_paid,
-            name = "Principal Paid", color = cols[2],
-            line = list(dash = "dot"),
+            name = "Principal Paid", 
+            line = list(color = cols[2], dash = "dot"),
             type = 'scatter', mode = 'lines'
   ) %>%
   add_trace(data = dataDF2,
             x = ~date, y = ~interest_paid,
-            name = "Interest Paid", color = cols[3],
-            line = list(dash = "dot"),
+            name = "Interest Paid", 
+            line = list(color = cols[3], dash = "dot"),
             type = 'scatter', mode = 'lines'
   ) %>%
   layout(
@@ -71,4 +74,4 @@ plot_ly() %>%
     xaxis = list(title = "Date"), yaxis = list(title = "Running Total ($)")
   )
 
-
+  
