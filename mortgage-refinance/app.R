@@ -57,10 +57,73 @@ ui <- fluidPage(
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-
+    
+    #normalize dates to first of month
+    t0_orig <- reactive({
+        input$calc
+        isolate(
+            ymd(paste(year(input$t0_orig), month(input$t0_orig), "01", sep = "-")) 
+        )
+    })
+    t0_refi <- reactive({
+        input$calc
+        isolate(
+            ymd(paste(year(input$t0_refi), month(input$t0_refi), "01", sep = "-")) 
+        )
+    })
+    
+    #initial mortgage amortization
+    dataDF1 <- reactive({
+        input$calc
+        isolate(
+            my_amort(
+                input$P_orig, input$r_a_orig, 
+                ifelse(input$n_orig == "30 year", 30*12, 15*12), 
+                t0_orig()
+            )
+        )
+    })
+    
+    #mortgage refinance
+    #derive principal from dataDF1
+    P_refi <- reactive({
+        input$calc
+        isolate(
+            dataDF1() %>%
+                filter(date == t0_refi() - months(1)) %>%
+                pull(ending_balance)
+        )
+    })
+    #derive initial prinicpal paid from dataDF1
+    P0_refi <- reactive({
+        input$calc
+        isolate(
+            dataDF1() %>%
+                filter(date == t0_refi() - months(1)) %>%
+                pull(principal_paid))
+    })
+    #derive initial interest paid from dataDF1
+    I0_refi <- reactive({
+        input$calc
+        isolate(
+            dataDF1() %>%
+                filter(date == t0_refi() - months(1)) %>%
+                pull(interest_paid)
+        )
+    })
+    
+    #amortization for refinanced loan
+    dataDF2 <- reactive({
+        input$calc
+        isolate(
+            my_amort(P_refi(), input$r_a_refi, 
+                     ifelse(input$n_refi == "30 year", 30*12, 15*12), 
+                     t0_refi(), P0_refi(), I0_refi())
+        )
+    })
     
     #debug print
-    output$debug <- renderPrint(input$t0_orig)
+    output$debug <- renderPrint(head(dataDF2()))
 }
 
 # Run the application 
