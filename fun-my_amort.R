@@ -7,7 +7,7 @@ my_amort <- function(
   #monthly interest rate
   r <- r_a/100/12
   #monthly payment
-  M <- P*(r*(1+r)^n)/((1+r)^n-1) %>% round(2)
+  M <- P * r / (1 - (1 + r)^(-n))
   
   #loop through months and generate time series
   #initialize
