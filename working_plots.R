@@ -29,7 +29,7 @@ I0 <- dataDF1 %>%
 
 dataDF2 <- my_amort(P, r_a, n, t0, P0, I0)
 
-cols <- pal_jco()(3)
+cols <- pal_jco()(5)
 
 #running totals plot
 plot_ly() %>%
@@ -74,4 +74,41 @@ plot_ly() %>%
     xaxis = list(title = "Date"), yaxis = list(title = "Running Total ($)")
   )
 
-  
+#monthly payment plot
+p1 <- plot_ly() %>%
+  add_trace(data = dataDF1,
+            x = ~date, y = ~principal_payment,
+            name = "Principal",
+            marker = list(color = cols[5]),
+            type = "bar"
+  ) %>%
+  add_trace(data = dataDF1,
+            x = ~date, y = ~interest_payment,
+            name = "Interest", 
+            marker = list(color = cols[4]),
+            type = "bar"
+  ) %>%
+  layout(barmode = "stack", hovermode = "x unified")
+
+p2 <- plot_ly() %>%
+  add_trace(data = dataDF2,
+            x = ~date, y = ~principal_payment,
+            name = "Principal", 
+            marker = list(color = cols[5]),
+            type = "bar"
+  ) %>%
+  add_trace(data = dataDF2,
+            x = ~date, y = ~interest_payment,
+            name = "Interest", 
+            marker = list(color = cols[4]),
+            type = "bar"
+  ) %>%
+  layout(barmode = "stack", hovermode = "x unified")
+
+subplot(p1, p2, shareX = TRUE, nrows = 2) %>%
+  layout(
+    xaxis = list(title = "Date"),
+    yaxis = list(title = "Original Mortgage Payment ($)"),
+    yaxis2 = list(title = "Refinanced Mortgage Payment ($)"),
+    showlegend = FALSE
+  )
