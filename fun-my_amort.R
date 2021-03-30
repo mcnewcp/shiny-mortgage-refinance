@@ -13,6 +13,8 @@ my_amort <- function(
   #initialize
   outDF <- tibble()
   iP <- P
+  iP_paid <- 0
+  iI_paid <- 0
   it <- t0
   for (i in 1:n) {
     #monthly interest
@@ -25,10 +27,14 @@ my_amort <- function(
     iDF <- tibble(
       date = it, payment = M, 
       principal_payment = mP, interest_payment = mI,
-      ending_balance = iP
+      ending_balance = iP,
+      principal_paid = iP_paid + mP,
+      interest_paid = iI_paid + mI
     )
     outDF <- outDF %>% bind_rows(iDF)
     it <- it + months(1)
+    iP_paid <- iP_paid + mP
+    iI_paid <- iI_paid + mI
   }
   return(outDF)
 }
