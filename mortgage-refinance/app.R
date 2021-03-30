@@ -48,9 +48,11 @@ ui <- fluidPage(
 
         # Show a plot of the generated distribution
         mainPanel(
+            fluidRow(uiOutput("total_text")),
             fluidRow(plotlyOutput("total_plot")),
-            fluidRow(plotlyOutput("monthly_plot")),
-            fluidRow(verbatimTextOutput("debug"))
+            fluidRow(uiOutput("monthly_text")),
+            fluidRow(plotlyOutput("monthly_plot"))
+            # fluidRow(verbatimTextOutput("debug"))
         )
     )
 )
@@ -135,6 +137,17 @@ server <- function(input, output) {
     refi_total <- reactive({
         input$calc
         isolate((P0_refi() + sum(dataDF2()$payment)) %>% dollar_format()(.))
+    })
+    output$total_text <- renderUI({
+        h3(paste("Total Amount Repaid: Original =", original_total(), ", Refinanced =", refi_total()))
+    })
+    
+    #monthly payment
+    output$monthly_text <- renderUI({
+        h3(paste(
+            "Monthly Payment: Original =", dollar_format()(dataDF1()$payment[1]), 
+            ", Refinanced =", dollar_format()(dataDF2()$payment[1])
+        ))
     })
     
     #running total plot
