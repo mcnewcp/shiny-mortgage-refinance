@@ -2,7 +2,10 @@ my_amort <- function(
   P, #total principal
   r_a, #annual interest rate
   n, #total number of months
-  t0 #start date
+  t0, #start date
+  P0 = 0, #initial principal paid (for refinance calcs)
+  I0 = 0 #initial interest paid (for refinance calcs)
+  
 ) {
   #monthly interest rate
   r <- r_a/100/12
@@ -13,8 +16,8 @@ my_amort <- function(
   #initialize
   outDF <- tibble()
   iP <- P
-  iP_paid <- 0
-  iI_paid <- 0
+  iP_paid <- P0
+  iI_paid <- I0
   it <- t0
   for (i in 1:n) {
     #monthly interest
