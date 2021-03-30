@@ -49,7 +49,7 @@ ui <- fluidPage(
         # Show a plot of the generated distribution
         mainPanel(
             fluidRow(plotlyOutput("total_plot")),
-            fluidRow(),
+            fluidRow(plotlyOutput("monthly_plot")),
             fluidRow(verbatimTextOutput("debug"))
         )
     )
@@ -180,6 +180,47 @@ server <- function(input, output) {
             layout(
                 hovermode = "x unified", showlegend = FALSE,
                 xaxis = list(title = "Date"), yaxis = list(title = "Running Total ($)")
+            )
+    )
+    
+    #monthly payment plot
+    output$monthly_plot <- renderPlotly(
+        subplot(
+            plot_ly() %>%
+                add_trace(data = dataDF1(),
+                          x = ~date, y = ~principal_payment,
+                          name = "Principal",
+                          fillcolor = cols[5],
+                          type = "scatter", mode = "none", stackgroup = "one"
+                ) %>%
+                add_trace(data = dataDF1(),
+                          x = ~date, y = ~interest_payment,
+                          name = "Interest", 
+                          fillcolor = cols[4],
+                          type = "scatter", mode = "none", stackgroup = "one"
+                ) %>%
+                layout(hovermode = "x unified"),
+            plot_ly() %>%
+                add_trace(data = dataDF2(),
+                          x = ~date, y = ~principal_payment,
+                          name = "Principal",
+                          fillcolor = cols[5],
+                          type = "scatter", mode = "none", stackgroup = "one"
+                ) %>%
+                add_trace(data = dataDF2(),
+                          x = ~date, y = ~interest_payment,
+                          name = "Interest", 
+                          fillcolor = cols[4],
+                          type = "scatter", mode = "none", stackgroup = "one"
+                ) %>%
+                layout(hovermode = "x unified"),
+            shareX = TRUE, nrows = 2
+        ) %>%
+            layout(
+                xaxis = list(title = "Date"),
+                yaxis = list(title = "Original Mortgage<br>Payment ($)"),
+                yaxis2 = list(title = "Refinanced Mortgage<br>Payment ($)"),
+                showlegend = FALSE
             )
     )
 }
