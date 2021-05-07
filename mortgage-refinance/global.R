@@ -4,6 +4,7 @@ library(plotly)
 library(scales)
 library(ggsci)
 library(shiny)
+library(shinyWidgets)
 library(shinythemes)
 
 #function for calculating amortization
