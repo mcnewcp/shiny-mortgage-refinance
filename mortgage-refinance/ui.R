@@ -4,10 +4,9 @@ fluidPage(
   sidebarLayout(
     sidebarPanel(
       h2("Original Mortgage"),
-      numericInput(
+      currencyInput(
         "P_orig", "Principal",
-        value = 400000,
-        min = 1, max = 2000000, step = 1
+        value = 400000, format = "dollar", align = "left"
       ),
       numericInput(
         "r_a_orig", "Interest Rate",
@@ -39,10 +38,13 @@ fluidPage(
         value = ymd("2021-05-01"), min = ymd("1990-01-01"), max = ymd("2021-12-01")
       ),
       hr(),
+      currencyInput(
+        "close_cost", "Closing Costs",
+        value = 5000, format = "dollar", align = "left"
+      ),
       actionButton(
         "calc", "Calculate!"
       )
-      
     ),
     
     # Show a plot of the generated distribution
