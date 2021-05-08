@@ -35,6 +35,9 @@ I0_refi <- dataDF1 %>%
   filter(date == t0_refi - months(1)) %>%
   pull(interest_paid)
 
+#calculate total added costs
+add_costs <- close_cost + ifelse(points_yn == "Yes", points/100*P_refi, 0)
+
 #amortization for refinanced loan
 dataDF2 <- my_amort(
   P_refi, r_a_refi, 
@@ -46,7 +49,7 @@ dataDF2 <- my_amort(
 original_total <- sum(dataDF1$payment) %>% dollar_format()(.)
 refi_total <- (P0_refi + sum(dataDF2$payment)) %>% dollar_format()(.)
 
-#running total plot
+#detailed total plot
 cols <- pal_jco()(5)
 plot_ly() %>%
   add_trace(data = dataDF1,
