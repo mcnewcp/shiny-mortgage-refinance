@@ -42,12 +42,54 @@ add_costs <- close_cost + ifelse(points_yn == "Yes", points/100*P_refi, 0)
 dataDF2 <- my_amort(
   P_refi, r_a_refi, 
   ifelse(n_refi == "30 year", 30*12, 15*12), 
-  t0_refi, P0_refi, I0_refi
+  t0_refi, P0_refi, I0_refi, add_costs
 )
 
 #totals
 original_total <- sum(dataDF1$payment) %>% dollar_format()(.)
 refi_total <- (P0_refi + sum(dataDF2$payment)) %>% dollar_format()(.)
+
+#payoff
+payoffDF <- dataDF1 %>%
+  select(date, total_paid_orig = total_paid) %>%
+  full_join(dataDF2 %>% select(date, total_paid_refi = total_paid)) %>%
+  mutate(diff = total_paid_refi - total_paid_orig)
+payoff_date <- payoffDF %>%
+  filter(diff < 0) %>%
+  pull(date) %>%
+  min()
+payoff_years <- difftime(payoff_date, t0_refi, units = "days") %>%
+  as.numeric() %>%
+  {./365} %>%
+  round(1)
+
+#total plot
+plot_ly(payoffDF, x = ~date) %>%
+  add_trace(type = "scatter", mode = "lines",
+            y = ~total_paid_orig,
+            line = list(color = "black"),
+            name = "Original Mortgage") %>%
+  add_trace(type = "scatter", mode = "lines",
+            y = ~total_paid_refi,
+            line = list(color = "black", dash = "dot"),
+            name = "Refinanced Mortgage") %>%
+  layout(hovermode = "x unified",
+         shapes = list(
+           list(
+             type ="rect",
+             y0 = 0, y1 = 1, yref = "paper",
+             x0 = t0_orig, x1 = payoff_date,
+             fillcolor = "red", opacity = 0.2,
+             line = list(color = "red", opacity = 0.2)
+           ),
+           list(
+             type ="rect",
+             y0 = 0, y1 = 1, yref = "paper",
+             x0 = payoff_date, x1 = max(payoffDF$date),
+             fillcolor = "green", opacity = 0.2,
+             line = list(color = "green", opacity = 0.2)
+           )
+         ))
 
 #detailed total plot
 cols <- pal_jco()(5)
