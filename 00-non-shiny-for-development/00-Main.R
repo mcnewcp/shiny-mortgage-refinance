@@ -63,6 +63,40 @@ payoff_years <- difftime(payoff_date, t0_refi, units = "days") %>%
   {./365} %>%
   round(1)
 
+#df for yearly summary table
+sumDF <- dataDF1 %>%
+  select(
+    date, principal_paid_orig = principal_paid, 
+    interest_paid_orig = interest_paid, total_paid_orig = total_paid
+  ) %>%
+  full_join(
+    dataDF2 %>% select(
+      date, principal_paid_refi = principal_paid, 
+      interest_paid_refi = interest_paid, total_paid_refi = total_paid
+    )
+  ) %>%
+  #drop all rows before refi
+  filter(date >= t0_refi) %>%
+  #fill down blank rows for mismatched dates
+  fill(contains("paid"), .direction = "down") %>%
+  #generate differences
+  mutate(
+    principal_paid_diff = principal_paid_orig - principal_paid_refi,
+    interest_paid_diff = interest_paid_orig - interest_paid_refi,
+    total_paid_diff = total_paid_orig - total_paid_refi
+  ) %>%
+  mutate_if(is.numeric, round, 2) %>%
+  #choose yearly rows
+  mutate(
+    month = month(date, label = TRUE, abbr = TRUE),
+    year = year(date)
+  ) %>%
+  filter(month == month(t0_refi, label = TRUE, abbr = TRUE)) %>%
+  #add month/year as row numbers
+  mutate(myear = paste(month, year)) %>%
+  column_to_rownames("myear")
+  
+
 #total plot
 plot_ly(payoffDF, x = ~date) %>%
   add_trace(type = "scatter", mode = "lines",
