@@ -49,20 +49,6 @@ dataDF2 <- my_amort(
 original_total <- sum(dataDF1$payment) %>% dollar_format()(.)
 refi_total <- (P0_refi + sum(dataDF2$payment)) %>% dollar_format()(.)
 
-#payoff
-payoffDF <- dataDF1 %>%
-  select(date, total_paid_orig = total_paid) %>%
-  full_join(dataDF2 %>% select(date, total_paid_refi = total_paid)) %>%
-  mutate(diff = total_paid_refi - total_paid_orig)
-payoff_date <- payoffDF %>%
-  filter(diff < 0) %>%
-  pull(date) %>%
-  min()
-payoff_years <- difftime(payoff_date, t0_refi, units = "days") %>%
-  as.numeric() %>%
-  {./365} %>%
-  round(1)
-
 #df for yearly summary table
 sumDF <- dataDF1 %>%
   select(
