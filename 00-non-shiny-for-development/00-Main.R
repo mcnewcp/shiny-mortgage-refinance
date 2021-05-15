@@ -47,7 +47,7 @@ dataDF2 <- my_amort(
 
 #totals
 original_total <- sum(dataDF1$payment) %>% dollar_format()(.)
-refi_total <- (P0_refi + sum(dataDF2$payment)) %>% dollar_format()(.)
+refi_total <- (P0_refi + add_costs + sum(dataDF2$payment)) %>% dollar_format()(.)
 
 #df for yearly summary table
 sumDF <- dataDF1 %>%
