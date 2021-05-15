@@ -62,11 +62,15 @@ fluidPage(
     
     # Show a plot of the generated distribution
     mainPanel(
-      fluidRow(uiOutput("total_text")),
-      fluidRow(plotlyOutput("total_plot")),
-      fluidRow(uiOutput("monthly_text")),
-      fluidRow(plotlyOutput("monthly_plot"))
-      # fluidRow(verbatimTextOutput("debug"))
+      tabsetPanel(
+        tabPanel("Overall",
+                 fluidRow(uiOutput("total_text")),
+                 fluidRow(plotlyOutput("total_plot"))),
+        tabPanel("Monthly",
+                 fluidRow(uiOutput("monthly_text")),
+                 fluidRow(plotlyOutput("monthly_plot"))),
+        tabPanel("Summary Table", fluidRow(verbatimTextOutput("debug")))
+      )
     )
   )
 )
