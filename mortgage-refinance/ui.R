@@ -42,6 +42,19 @@ fluidPage(
         "close_cost", "Closing Costs",
         value = 3200, format = "dollar", align = "left"
       ),
+      radioButtons(
+        "points_yn", "Points?",
+        choices = c("Yes", "No"),
+        selected = "No"
+      ),
+      conditionalPanel(
+        condition = "input.points_yn == 'Yes'",
+        numericInput(
+          "points", "Points",
+          value = 1,
+          min = 0.5, max = 10, step = 0.5
+        )
+      ),
       actionButton(
         "calc", "Calculate!"
       )
