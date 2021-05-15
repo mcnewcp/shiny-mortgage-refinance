@@ -70,7 +70,7 @@ function(input, output) {
   })
   
   #debug print
-  output$debug <- renderPrint(head(dataDF2()))
+  output$debug <- renderPrint(add_costs())
   
   #totals
   original_total <- reactive({
@@ -81,7 +81,7 @@ function(input, output) {
   })
   refi_total <- reactive({
     input$calc
-    isolate((P0_refi() + sum(dataDF2()$payment)) %>% dollar_format()(.))
+    isolate((P0_refi() + add_costs() + sum(dataDF2()$payment)) %>% dollar_format()(.))
   })
   output$total_text <- renderUI({
     h3(paste("Total Amount Repaid: Original =", original_total(), ", Refinanced =", refi_total()))
