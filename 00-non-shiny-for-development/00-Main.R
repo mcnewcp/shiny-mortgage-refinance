@@ -81,9 +81,9 @@ sumDF <- dataDF1 %>%
   fill(contains("paid"), .direction = "down") %>%
   #generate differences
   mutate(
-    principal_paid_diff = principal_paid_orig - principal_paid_refi,
-    interest_paid_diff = interest_paid_orig - interest_paid_refi,
-    total_paid_diff = total_paid_orig - total_paid_refi
+    principal_paid_diff = principal_paid_refi - principal_paid_orig,
+    interest_paid_diff = interest_paid_refi - interest_paid_orig,
+    total_paid_diff = total_paid_refi - total_paid_orig
   ) %>%
   mutate_if(is.numeric, round, 2) %>%
   #choose yearly rows
@@ -93,9 +93,77 @@ sumDF <- dataDF1 %>%
   ) %>%
   filter(month == month(t0_refi, label = TRUE, abbr = TRUE)) %>%
   #add month/year as row numbers
-  mutate(myear = paste(month, year)) %>%
-  column_to_rownames("myear")
+  mutate(myear = paste(month, year)) 
   
+#generate summary tables
+#original
+formattable(
+  sumDF %>% 
+    select(
+      Date = myear, Equity = principal_paid_orig, 
+      `Interest Paid` = interest_paid_orig, `Total Paid` = total_paid_orig
+    )
+)
+#refinance
+formattable(
+  sumDF %>% 
+    select(
+      Date = myear, Equity = principal_paid_refi, 
+      `Interest Paid` = interest_paid_refi, `Total Paid` = total_paid_refi
+    )
+)
+
+#custom color gradient function for table formatting
+my_colors <- function(values_vec, pos_color = "red", neg_color = "green") {
+  # values_vec <- sumDF$total_paid_diff 
+  # pos_color = "red"
+  # neg_color = "green"
+  #center color scale at 0
+  funDF <- tibble(value = values_vec)
+  colDF <- funDF %>% 
+    filter(value >= 0) %>%
+    mutate(color = csscolor(gradient(c(max(abs(values_vec)), values_vec[values_vec >= 0]), "white", pos_color))[-1]) %>%
+    bind_rows(
+      funDF %>%
+        filter(value < 0) %>%
+        mutate(color = csscolor(gradient(c(-max(abs(values_vec)), values_vec[values_vec < 0]), neg_color, "white"))[-1])
+    )
+  outDF <- funDF %>%
+    left_join(colDF) 
+  outDF$color
+}
+
+#difference
+formattable(
+  sumDF %>% 
+    select(
+      Date = myear, Equity = principal_paid_diff, 
+      `Interest Paid` = interest_paid_diff, `Total Paid` = total_paid_diff
+    ),
+  list(
+    Equity = formatter("span", 
+                       style = function(x){
+                         style(display            = "block",
+                               padding            = "0 4px",
+                               `border-radius`    = "4px",
+                               `background-color` = my_colors(sumDF$principal_paid_diff, neg_color = "red", pos_color = "green")
+                         )}),
+    `Interest Paid` = formatter("span", 
+                                style = function(x){
+                                  style(display            = "block",
+                                        padding            = "0 4px",
+                                        `border-radius`    = "4px",
+                                        `background-color` = my_colors(sumDF$interest_paid_diff)
+                                  )}),
+    `Total Paid` = formatter("span", 
+                             style = function(x){
+                               style(display            = "block",
+                                     padding            = "0 4px",
+                                     `border-radius`    = "4px",
+                                     `background-color` = my_colors(sumDF$total_paid_diff)
+                               )})
+  )
+)
 
 #total plot
 plot_ly(payoffDF, x = ~date) %>%
