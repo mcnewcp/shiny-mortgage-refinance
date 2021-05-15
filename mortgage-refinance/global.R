@@ -55,3 +55,23 @@ my_amort <- function(
   }
   return(outDF)
 }
+
+#custom color gradient function for table formatting
+my_colors <- function(values_vec, pos_color = "red", neg_color = "green") {
+  # values_vec <- sumDF$total_paid_diff 
+  # pos_color = "red"
+  # neg_color = "green"
+  #center color scale at 0
+  funDF <- tibble(value = values_vec)
+  colDF <- funDF %>% 
+    filter(value >= 0) %>%
+    mutate(color = csscolor(gradient(c(max(abs(values_vec)), values_vec[values_vec >= 0]), "white", pos_color))[-1]) %>%
+    bind_rows(
+      funDF %>%
+        filter(value < 0) %>%
+        mutate(color = csscolor(gradient(c(-max(abs(values_vec)), values_vec[values_vec < 0]), neg_color, "white"))[-1])
+    )
+  outDF <- funDF %>%
+    left_join(colDF) 
+  outDF$color
+}
