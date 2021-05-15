@@ -53,13 +53,19 @@ function(input, output) {
     )
   })
   
+  #calculate total added costs
+  add_costs <- reactive({
+    input$calc
+    isolate(input$close_cost + ifelse(input$points_yn == "Yes", input$points/100*P_refi, 0))
+  })
+  
   #amortization for refinanced loan
   dataDF2 <- reactive({
     input$calc
     isolate(
       my_amort(P_refi(), input$r_a_refi, 
                ifelse(input$n_refi == "30 year", 30*12, 15*12), 
-               t0_refi(), P0_refi(), I0_refi())
+               t0_refi(), P0_refi(), I0_refi(), add_costs())
     )
   })
   
