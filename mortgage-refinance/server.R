@@ -69,9 +69,6 @@ function(input, output) {
     )
   })
   
-  #debug print
-  output$debug <- renderPrint(add_costs())
-  
   #totals
   original_total <- reactive({
     input$calc
@@ -87,6 +84,43 @@ function(input, output) {
     h3(paste("Total Amount Repaid: Original =", original_total(), ", Refinanced =", refi_total()))
   })
   
+  #df for yearly summary table
+  sumDF <- reactive({
+    input$calc
+    isolate(
+      dataDF1() %>%
+        select(
+          date, principal_paid_orig = principal_paid, 
+          interest_paid_orig = interest_paid, total_paid_orig = total_paid
+        ) %>%
+        full_join(
+          dataDF2() %>% select(
+            date, principal_paid_refi = principal_paid, 
+            interest_paid_refi = interest_paid, total_paid_refi = total_paid
+          )
+        ) %>%
+        #drop all rows before refi
+        filter(date >= t0_refi()) %>%
+        #fill down blank rows for mismatched dates
+        fill(contains("paid"), .direction = "down") %>%
+        #generate differences
+        mutate(
+          principal_paid_diff = principal_paid_refi - principal_paid_orig,
+          interest_paid_diff = interest_paid_refi - interest_paid_orig,
+          total_paid_diff = total_paid_refi - total_paid_orig
+        ) %>%
+        mutate_if(is.numeric, round, 2) %>%
+        #choose yearly rows
+        mutate(
+          month = month(date, label = TRUE, abbr = TRUE),
+          year = year(date)
+        ) %>%
+        filter(month == month(t0_refi(), label = TRUE, abbr = TRUE)) %>%
+        #add month/year as row numbers
+        mutate(myear = paste(month, year)) 
+    )
+  }) 
+  
   #monthly payment
   output$monthly_text <- renderUI({
     h3(paste(
@@ -94,6 +128,9 @@ function(input, output) {
       ", Refinanced =", dollar_format()(dataDF2()$payment[1])
     ))
   })
+  
+  #debug print
+  output$debug <- renderPrint(head(sumDF()))
   
   #running total plot
   cols <- pal_jco()(5)
