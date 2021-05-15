@@ -6,6 +6,7 @@ library(ggsci)
 library(shiny)
 library(shinyWidgets)
 library(shinythemes)
+library(formattable)
 
 #function for calculating amortization
 my_amort <- function(
