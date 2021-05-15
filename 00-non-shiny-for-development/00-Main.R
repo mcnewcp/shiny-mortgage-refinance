@@ -165,34 +165,6 @@ formattable(
   )
 )
 
-#total plot
-plot_ly(payoffDF, x = ~date) %>%
-  add_trace(type = "scatter", mode = "lines",
-            y = ~total_paid_orig,
-            line = list(color = "black"),
-            name = "Original Mortgage") %>%
-  add_trace(type = "scatter", mode = "lines",
-            y = ~total_paid_refi,
-            line = list(color = "black", dash = "dot"),
-            name = "Refinanced Mortgage") %>%
-  layout(hovermode = "x unified",
-         shapes = list(
-           list(
-             type ="rect",
-             y0 = 0, y1 = 1, yref = "paper",
-             x0 = t0_orig, x1 = payoff_date,
-             fillcolor = "red", opacity = 0.2,
-             line = list(color = "red", opacity = 0.2)
-           ),
-           list(
-             type ="rect",
-             y0 = 0, y1 = 1, yref = "paper",
-             x0 = payoff_date, x1 = max(payoffDF$date),
-             fillcolor = "green", opacity = 0.2,
-             line = list(color = "green", opacity = 0.2)
-           )
-         ))
-
 #detailed total plot
 cols <- pal_jco()(5)
 plot_ly() %>%
@@ -264,7 +236,7 @@ subplot(
       xref = "paper", yref = "paper",
       text = "Original Monthly Payment",
       showarrow = F,
-      font = list(color = 'white', size = 14)
+      font = list(color = 'black', size = 14)
     ) %>%
     layout(hovermode = "x unified"),
   plot_ly() %>%
@@ -285,7 +257,7 @@ subplot(
       xref = "paper", yref = "paper",
       text = "Refinanced Monthly Payment",
       showarrow = F,
-      font = list(color = 'white', size = 14)
+      font = list(color = 'black', size = 14)
     ) %>%
     layout(hovermode = "x unified"),
   shareX = TRUE, nrows = 2
