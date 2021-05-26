@@ -71,8 +71,8 @@ fluidPage(
                  fluidRow(plotlyOutput("monthly_plot"))),
         tabPanel("Summary Table", 
                  fluidRow(
-                   column(4),
-                   column(4),
+                   column(4, fluidRow(h4("Original Mortgage")), fluidRow(formattableOutput("orig_table"))),
+                   column(4, fluidRow(h4("Refinanced Mortgage")), fluidRow(formattableOutput("refi_table"))),
                    column(4, fluidRow(h4("Difference")), fluidRow(formattableOutput("diff_table")))), 
                  fluidRow(verbatimTextOutput("debug")))
       )

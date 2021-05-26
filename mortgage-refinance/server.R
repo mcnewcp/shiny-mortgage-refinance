@@ -240,6 +240,28 @@ function(input, output) {
       )
   )
   
+  #original mortgage table
+  output$orig_table <- renderFormattable(
+    formattable(
+      sumDF() %>% 
+        select(
+          Date = myear, Equity = principal_paid_orig, 
+          `Interest Paid` = interest_paid_orig, `Total Paid` = total_paid_orig
+        )
+    )
+  )
+  
+  #refinanced mortgage table
+  output$refi_table <- renderFormattable(
+    formattable(
+      sumDF() %>% 
+        select(
+          Date = myear, Equity = principal_paid_refi, 
+          `Interest Paid` = interest_paid_refi, `Total Paid` = total_paid_refi
+        )
+    )
+  )
+  
   #difference table
   output$diff_table <- renderFormattable(
     formattable(
