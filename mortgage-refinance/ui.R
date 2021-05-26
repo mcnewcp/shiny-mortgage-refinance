@@ -60,7 +60,6 @@ fluidPage(
       )
     ),
     
-    # Show a plot of the generated distribution
     mainPanel(
       tabsetPanel(
         tabPanel("Overall",
@@ -71,10 +70,20 @@ fluidPage(
                  fluidRow(plotlyOutput("monthly_plot"))),
         tabPanel("Summary Table", 
                  fluidRow(
-                   column(4, fluidRow(h4("Original Mortgage")), fluidRow(formattableOutput("orig_table"))),
-                   column(4, fluidRow(h4("Refinanced Mortgage")), fluidRow(formattableOutput("refi_table"))),
-                   column(4, fluidRow(h4("Difference")), fluidRow(formattableOutput("diff_table")))), 
-                 fluidRow(verbatimTextOutput("debug")))
+                   column(
+                     width = 4, fluidRow(h4("Original Mortgage")), 
+                     fluidRow(style='border: 1px solid gray', formattableOutput("orig_table"))
+                   ),
+                   column(
+                     width = 4, fluidRow(h4("Refinanced Mortgage")), 
+                     fluidRow(style='border-top: 1px solid gray; border-bottom: 1px solid gray', formattableOutput("refi_table"))
+                   ),
+                   column(
+                     width = 4, fluidRow(h4("Difference")), 
+                     fluidRow(style='border: 1px solid gray', formattableOutput("diff_table")))
+                   )
+                 # fluidRow(verbatimTextOutput("debug"))
+        )
       )
     )
   )
