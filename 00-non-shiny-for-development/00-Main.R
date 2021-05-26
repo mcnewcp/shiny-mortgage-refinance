@@ -90,6 +90,7 @@ formattable(
       `Interest Paid` = interest_paid_orig, `Total Paid` = total_paid_orig
     )
 )
+
 #refinance
 formattable(
   sumDF %>% 
