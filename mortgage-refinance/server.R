@@ -130,7 +130,7 @@ function(input, output) {
   })
   
   #debug print
-  output$debug <- renderPrint(head(sumDF()))
+  # output$debug <- renderPrint(head(sumDF()))
   
   #running total plot
   cols <- pal_jco()(5)
