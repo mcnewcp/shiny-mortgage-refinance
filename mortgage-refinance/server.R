@@ -239,4 +239,39 @@ function(input, output) {
         showlegend = FALSE
       )
   )
+  
+  #difference table
+  output$diff_table <- renderFormattable(
+    formattable(
+      sumDF() %>% 
+        select(
+          Date = myear, Equity = principal_paid_diff, 
+          `Interest Paid` = interest_paid_diff, `Total Paid` = total_paid_diff
+        ),
+      list(
+        Equity = formatter("span", 
+                           style = function(x){
+                             style(display            = "block",
+                                   padding            = "0 4px",
+                                   `border-radius`    = "4px",
+                                   `background-color` = my_colors(sumDF()$principal_paid_diff, neg_color = "red", pos_color = "green")
+                             )}),
+        `Interest Paid` = formatter("span", 
+                                    style = function(x){
+                                      style(display            = "block",
+                                            padding            = "0 4px",
+                                            `border-radius`    = "4px",
+                                            `background-color` = my_colors(sumDF()$interest_paid_diff)
+                                      )}),
+        `Total Paid` = formatter("span", 
+                                 style = function(x){
+                                   style(display            = "block",
+                                         padding            = "0 4px",
+                                         `border-radius`    = "4px",
+                                         `background-color` = my_colors(sumDF()$total_paid_diff)
+                                   )})
+      )
+    )
+  )
+  
 }

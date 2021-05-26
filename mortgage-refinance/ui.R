@@ -69,7 +69,12 @@ fluidPage(
         tabPanel("Monthly",
                  fluidRow(uiOutput("monthly_text")),
                  fluidRow(plotlyOutput("monthly_plot"))),
-        tabPanel("Summary Table", fluidRow(verbatimTextOutput("debug")))
+        tabPanel("Summary Table", 
+                 fluidRow(
+                   column(4),
+                   column(4),
+                   column(4, fluidRow(h4("Difference")), fluidRow(formattableOutput("diff_table")))), 
+                 fluidRow(verbatimTextOutput("debug")))
       )
     )
   )
