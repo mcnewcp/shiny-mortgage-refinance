@@ -53,18 +53,21 @@ function(input, output) {
     )
   })
   
+  #calculate total added costs
+  add_costs <- reactive({
+    input$calc
+    isolate(input$close_cost + ifelse(input$points_yn == "Yes", input$points/100*P_refi, 0))
+  })
+  
   #amortization for refinanced loan
   dataDF2 <- reactive({
     input$calc
     isolate(
       my_amort(P_refi(), input$r_a_refi, 
                ifelse(input$n_refi == "30 year", 30*12, 15*12), 
-               t0_refi(), P0_refi(), I0_refi())
+               t0_refi(), P0_refi(), I0_refi(), add_costs())
     )
   })
-  
-  #debug print
-  output$debug <- renderPrint(head(dataDF2()))
   
   #totals
   original_total <- reactive({
@@ -75,11 +78,48 @@ function(input, output) {
   })
   refi_total <- reactive({
     input$calc
-    isolate((P0_refi() + sum(dataDF2()$payment)) %>% dollar_format()(.))
+    isolate((P0_refi() + add_costs() + sum(dataDF2()$payment)) %>% dollar_format()(.))
   })
   output$total_text <- renderUI({
     h3(paste("Total Amount Repaid: Original =", original_total(), ", Refinanced =", refi_total()))
   })
+  
+  #df for yearly summary table
+  sumDF <- reactive({
+    input$calc
+    isolate(
+      dataDF1() %>%
+        select(
+          date, principal_paid_orig = principal_paid, 
+          interest_paid_orig = interest_paid, total_paid_orig = total_paid
+        ) %>%
+        full_join(
+          dataDF2() %>% select(
+            date, principal_paid_refi = principal_paid, 
+            interest_paid_refi = interest_paid, total_paid_refi = total_paid
+          )
+        ) %>%
+        #drop all rows before refi
+        filter(date >= t0_refi()) %>%
+        #fill down blank rows for mismatched dates
+        fill(contains("paid"), .direction = "down") %>%
+        #generate differences
+        mutate(
+          principal_paid_diff = principal_paid_refi - principal_paid_orig,
+          interest_paid_diff = interest_paid_refi - interest_paid_orig,
+          total_paid_diff = total_paid_refi - total_paid_orig
+        ) %>%
+        mutate_if(is.numeric, round, 2) %>%
+        #choose yearly rows
+        mutate(
+          month = month(date, label = TRUE, abbr = TRUE),
+          year = year(date)
+        ) %>%
+        filter(month == month(t0_refi(), label = TRUE, abbr = TRUE)) %>%
+        #add month/year as row numbers
+        mutate(myear = paste(month, year)) 
+    )
+  }) 
   
   #monthly payment
   output$monthly_text <- renderUI({
@@ -88,6 +128,9 @@ function(input, output) {
       ", Refinanced =", dollar_format()(dataDF2()$payment[1])
     ))
   })
+  
+  #debug print
+  # output$debug <- renderPrint(head(sumDF()))
   
   #running total plot
   cols <- pal_jco()(5)
@@ -196,4 +239,61 @@ function(input, output) {
         showlegend = FALSE
       )
   )
+  
+  #original mortgage table
+  output$orig_table <- renderFormattable(
+    formattable(
+      sumDF() %>% 
+        select(
+          Date = myear, Equity = principal_paid_orig, 
+          `Interest Paid` = interest_paid_orig, `Total Paid` = total_paid_orig
+        )
+    )
+  )
+  
+  #refinanced mortgage table
+  output$refi_table <- renderFormattable(
+    formattable(
+      sumDF() %>% 
+        select(
+          Date = myear, Equity = principal_paid_refi, 
+          `Interest Paid` = interest_paid_refi, `Total Paid` = total_paid_refi
+        )
+    )
+  )
+  
+  #difference table
+  output$diff_table <- renderFormattable(
+    formattable(
+      sumDF() %>% 
+        select(
+          Date = myear, Equity = principal_paid_diff, 
+          `Interest Paid` = interest_paid_diff, `Total Paid` = total_paid_diff
+        ),
+      list(
+        Equity = formatter("span", 
+                           style = function(x){
+                             style(display            = "block",
+                                   padding            = "0 4px",
+                                   `border-radius`    = "4px",
+                                   `background-color` = my_colors(sumDF()$principal_paid_diff, neg_color = "red", pos_color = "green")
+                             )}),
+        `Interest Paid` = formatter("span", 
+                                    style = function(x){
+                                      style(display            = "block",
+                                            padding            = "0 4px",
+                                            `border-radius`    = "4px",
+                                            `background-color` = my_colors(sumDF()$interest_paid_diff)
+                                      )}),
+        `Total Paid` = formatter("span", 
+                                 style = function(x){
+                                   style(display            = "block",
+                                         padding            = "0 4px",
+                                         `border-radius`    = "4px",
+                                         `background-color` = my_colors(sumDF()$total_paid_diff)
+                                   )})
+      )
+    )
+  )
+  
 }
